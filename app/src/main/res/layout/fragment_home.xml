@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/HomeRootLinearLayout"
+        android:orientation="vertical">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/input_filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/input_filter_txt"
+                android:inputType="textWebEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/input_filter" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <Spinner
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/filterSpinner"
+                android:layout_weight="1">
+            </Spinner>
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/filterButton"
+                android:layout_weight="1"
+                android:text="@string/filter_button">
+            </Button>
+        </LinearLayout>
+
+        <LinearLayout
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/HomeLinearLayout"
+            tools:context=".ui.home.HomeFragment"
+            android:orientation="vertical"
+            android:paddingTop="10dp"
+            android:paddingBottom="16dp"
+            android:layout_margin="30dp">
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

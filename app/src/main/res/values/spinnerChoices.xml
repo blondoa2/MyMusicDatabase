@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="releaseTypes">
+        <item>LP</item>
+        <item>EP</item>
+        <item>Live</item>
+        <item>Compilation</item>
+    </string-array>
+</resources>
