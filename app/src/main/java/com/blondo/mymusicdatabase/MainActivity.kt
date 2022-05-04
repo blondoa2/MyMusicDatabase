@@ -1,22 +1,25 @@
 package com.blondo.mymusicdatabase
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.View
 import android.widget.LinearLayout
-import com.google.android.material.navigation.NavigationView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider.getUriForFile
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.appcompat.app.AppCompatActivity
+import androidx.sqlite.db.SimpleSQLiteQuery
 import com.blondo.mymusicdatabase.databinding.ActivityMainBinding
-import com.blondo.mymusicdatabase.ui.MusicCard
-import com.blondo.mymusicdatabase.ui.home.HomeFragment
+import com.google.android.material.navigation.NavigationView
+import java.io.File
+import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
 
@@ -39,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         val homeLinLay: LinearLayout? = findViewById(R.id.HomeLinearLayout)
 
         //todo: implement drawer
-        /*val drawerLayout: DrawerLayout = binding.drawerLayout
+        val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
 
@@ -54,7 +57,7 @@ class MainActivity : AppCompatActivity() {
 
 
         setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)*/
+        navView.setupWithNavController(navController)
 
     }
 
@@ -67,5 +70,33 @@ class MainActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+
+    fun backupButton(view: View) {
+
+        thread {
+            //db checkpoint
+            val dbDao: DBDao = AppDatabase.getInstance(applicationContext!!)?.dbDao()!!
+            dbDao.checkpoint(SimpleSQLiteQuery("pragma wal_checkpoint(full)"));
+
+            val originalFile =
+                File(AppDatabase.getInstance(applicationContext)!!.openHelper.writableDatabase.getPath())
+            val newFile = File(applicationContext.getFilesDir().toString() + "/music.db")
+            originalFile.copyTo(newFile, true)
+
+            val filePath = File(applicationContext.getFilesDir().parent, "files")
+            val myFile = File(filePath, "music.db")
+            val contentUri: Uri =
+                getUriForFile(applicationContext, "com.blondo.mymusicdatabase.fileprovider", myFile)
+
+            val shareIntent: Intent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_STREAM, contentUri)
+                setDataAndType(contentUri, "application/vnd.sqlite3")
+            }
+            shareIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            startActivity(Intent.createChooser(shareIntent, null))
+
+        }
     }
 }

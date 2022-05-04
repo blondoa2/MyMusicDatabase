@@ -6,6 +6,7 @@ import androidx.room.*
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.db.SupportSQLiteQuery
 import java.sql.RowId
 
 @Entity
@@ -21,6 +22,12 @@ data class Music( //makes more sense as "release", but that's a reserved word
     @ColumnInfo val notes: String?,
     @ColumnInfo val dataFromDiscogs: Boolean
 )
+
+@Dao
+interface DBDao {
+    @RawQuery
+    fun checkpoint(supportSQLiteQuery: SupportSQLiteQuery): Int;
+}
 
 @Dao
 interface MusicDao {
@@ -268,6 +275,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
 
 @Database(entities = [Music::class, Genre::class, Artist::class, MusicArtistCrossRef::class, MusicGenreCrossRef::class, GenreGenreCrossRef::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
+    abstract fun dbDao(): DBDao
     abstract fun musicDao(): MusicDao
     abstract fun genreDao(): GenreDao
     abstract fun artistDao(): ArtistDao
