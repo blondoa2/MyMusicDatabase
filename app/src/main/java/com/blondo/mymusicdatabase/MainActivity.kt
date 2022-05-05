@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.View
 import android.widget.LinearLayout
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider.getUriForFile
 import androidx.drawerlayout.widget.DrawerLayout
@@ -20,6 +21,7 @@ import com.blondo.mymusicdatabase.databinding.ActivityMainBinding
 import com.google.android.material.navigation.NavigationView
 import java.io.File
 import kotlin.concurrent.thread
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -72,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
-    fun backupButton(view: View) {
+    fun exportButton(view: View) {
 
         thread {
             //db checkpoint
@@ -98,5 +100,14 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent.createChooser(shareIntent, null))
 
         }
+    }
+
+    val getContent = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        AppDatabase.importDb(applicationContext, uri!!)
+    }
+
+
+    fun importButton(view: View) {
+        getContent.launch("*/*")
     }
 }

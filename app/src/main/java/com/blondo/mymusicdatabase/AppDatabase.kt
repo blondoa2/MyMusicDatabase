@@ -1,12 +1,17 @@
 package com.blondo.mymusicdatabase
 
+import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Picture
+import android.net.Uri
+import android.util.Log
+import androidx.core.net.toFile
 import androidx.room.*
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
+import java.io.File
 import java.sql.RowId
 
 @Entity
@@ -294,6 +299,36 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun closeDown(context: Context) {
             INSTANCE?.close()
+        }
+
+        fun importDb(context: Context, path: Uri): AppDatabase? {
+            synchronized(AppDatabase::class) {
+                val dst = File(context.filesDir.toString() + "/music.db")
+                Log.i("blondebug", dst.toString())
+                val contentResolver: ContentResolver = context.contentResolver
+                val inputstream = contentResolver.openInputStream(path)
+                inputstream.use {
+                        input -> dst.outputStream().use {
+                            output -> input!!.copyTo(output)
+                        }
+                }
+
+                if (dst.exists()) {
+                    closeDown(context)
+
+                    //delete old database
+                    val currDB = File(context.dataDir.toString() + "/databases/music.db")
+                    currDB.delete()
+
+                    INSTANCE = Room.databaseBuilder(context, AppDatabase::class.java, "music.db")
+                        .createFromFile(dst).build()
+                    Log.i("blondebug", "restored")
+                }
+                else
+                    Log.i("blondebug", "does not exist!")
+            }
+
+            return INSTANCE
         }
     }
 }
